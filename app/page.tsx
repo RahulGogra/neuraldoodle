@@ -1,101 +1,262 @@
-import Image from "next/image";
+"use client";
+import { useState, useRef, useEffect } from "react";
+import * as tf from "@tensorflow/tfjs";
+import * as mobilenet from "@tensorflow-models/mobilenet";
+import * as knnClassifier from "@tensorflow-models/knn-classifier";
+import { Class } from "../components/class";
+import { AddClass } from "../components/addClass";
+import { Training } from "@/components/training";
+import { Predictions } from "@/components/prediction";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+export default function TeachableMachine() {
+    const [classes, setClasses] = useState<
+        { name: string; images: string[]; count: number }[]
+    >([
+        { name: "Class 1", images: [], count: 0 },
+        { name: "Class 2", images: [], count: 0 },
+    ]);
+    const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
+        null
+    );
+    const [predictions, setPredictions] = useState<
+        { label: string; confidence: number }[]
+    >([]);
+    const [isPredicting, setIsPredicting] = useState(false);
+    const [isTraining, setIsTraining] = useState(false);
+    const predictionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [mobilenetModel, setMobilenetModel] =
+        useState<mobilenet.MobileNet | null>(null);
+    const classifier = useRef(knnClassifier.create());
+    const predictionVideoRef = useRef<HTMLVideoElement | null>(null);
+    const predictionCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    // Load MobileNet model
+    useEffect(() => {
+        const loadModel = async () => {
+            try {
+                const model = await mobilenet.load();
+                setMobilenetModel(model);
+                console.log("✅ MobileNet model loaded!");
+            } catch (error) {
+                console.error("Failed to load MobileNet model:", error);
+            }
+        };
+        loadModel();
+    }, []);
+
+    // Add image to a class
+    const addImageToClass = async (className: string, image: string) => {
+        if (!mobilenetModel) return;
+
+        const img = new Image();
+        img.src = image;
+        img.onload = async () => {
+            const imageTensor = tf.browser.fromPixels(img);
+            const activation = mobilenetModel.infer(imageTensor, true);
+            classifier.current.addExample(activation, className);
+
+            setClasses((prev) =>
+                prev.map((cls) =>
+                    cls.name === className
+                        ? {
+                              ...cls,
+                              images: [...cls.images, image],
+                              count: cls.count + 1,
+                          }
+                        : cls
+                )
+            );
+
+            // Dispose of tensors to avoid memory leaks
+            imageTensor.dispose();
+            tf.dispose(activation);
+        };
+    };
+
+    // Delete a class
+    const deleteClass = (className: string) => {
+        setClasses((prev) => prev.filter((cls) => cls.name !== className));
+        setOpenDropdownIndex(null);
+    };
+
+    // Delete an image from a class
+    const deleteImageFromClass = (className: string, imageIndex: number) => {
+        setClasses((prev) =>
+            prev.map((cls) =>
+                cls.name === className
+                    ? {
+                          ...cls,
+                          images: cls.images.filter(
+                              (_, idx) => idx !== imageIndex
+                          ),
+                          count: cls.count - 1,
+                      }
+                    : cls
+            )
+        );
+    };
+
+    // Edit a class name
+    const editClass = (className: string, newName: string) => {
+        setClasses((prev) =>
+            prev.map((cls) =>
+                cls.name === className ? { ...cls, name: newName } : cls
+            )
+        );
+    };
+
+    // Train the model
+    const trainModel = async () => {
+        setIsTraining(true);
+        console.log("Training model...");
+
+        // Simulate a delay of 2 seconds (2000 milliseconds)
+        await new Promise((resolve) => setTimeout(resolve, 3500));
+
+        console.log("Model trained with current data.");
+        setIsTraining(false);
+    };
+
+    // Start prediction
+    const startPrediction = async () => {
+        if (!predictionVideoRef.current || !mobilenetModel) return;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+            });
+            predictionVideoRef.current.srcObject = stream;
+            predictionVideoRef.current.play();
+            setIsPredicting(true);
+
+            predictionIntervalRef.current = setInterval(async () => {
+                await predictClass();
+            }, 1000);
+        } catch (error) {
+            console.error("Failed to start prediction camera:", error);
+        }
+    };
+
+    // Stop prediction
+    const stopPrediction = () => {
+        if (
+            predictionVideoRef.current &&
+            predictionVideoRef.current.srcObject
+        ) {
+            const stream = predictionVideoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach((track) => track.stop());
+            predictionVideoRef.current.srcObject = null;
+        }
+        setIsPredicting(false);
+        if (predictionIntervalRef.current) {
+            clearInterval(predictionIntervalRef.current);
+            predictionIntervalRef.current = null;
+        }
+    };
+
+    // Predict class
+    const predictClass = async () => {
+        if (
+            !mobilenetModel ||
+            !predictionVideoRef.current ||
+            !predictionCanvasRef.current
+        )
+            return;
+
+        const ctx = predictionCanvasRef.current.getContext("2d");
+        if (!ctx) return;
+
+        ctx.drawImage(predictionVideoRef.current, 0, 0, 224, 224);
+        const image = tf.browser.fromPixels(predictionCanvasRef.current);
+        const activation = mobilenetModel.infer(image, true);
+        const result = await classifier.current.predictClass(activation);
+
+        setPredictions(
+            Object.keys(result.confidences).map((label) => ({
+                label,
+                confidence: Math.round(result.confidences[label] * 100),
+            }))
+        );
+
+        // Dispose of tensors to avoid memory leaks
+        image.dispose();
+        tf.dispose(activation);
+    };
+
+    // Cleanup on component unmount
+    useEffect(() => {
+        return () => {
+            if (predictionIntervalRef.current) {
+                clearInterval(predictionIntervalRef.current);
+                predictionIntervalRef.current = null;
+            }
+        };
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+            <h1 className="text-3xl font-bold mb-6">Teachable Machine Clone</h1>
+
+            <div className="flex space-x-4">
+                <div>
+                    {/* Class Sections */}
+                    <div className="w-2xl space-y-4 mt-6">
+                        {classes.map((cls, index) => (
+                            <Class
+                                key={index}
+                                cls={cls}
+                                onAddImage={addImageToClass}
+                                onDeleteClass={deleteClass}
+                                onDeleteImage={deleteImageFromClass}
+                                onEditClass={editClass}
+                                openDropdownIndex={openDropdownIndex}
+                                setOpenDropdownIndex={setOpenDropdownIndex}
+                                index={index}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Add Class Section */}
+                    <AddClass
+                        onAddClass={(className) =>
+                            setClasses([
+                                ...classes,
+                                { name: className, images: [], count: 0 },
+                            ])
+                        }
+                    />
+                </div>
+
+                {/* Training and Predictions Section */}
+                <div className="flex items-center space-x-5 mt-6">
+                    <Training
+                        isTraining={isTraining}
+                        onTrainModel={trainModel}
+                        isPredicting={isPredicting}
+                        onStartPrediction={startPrediction}
+                        onStopPrediction={stopPrediction}
+                    />
+                    <div className="bg-white p-4 shadow-lg rounded-lg w-64 text-center">
+                        <Predictions predictions={predictions} />
+                        {/* Prediction Camera Feed */}
+                        <div className={`mt-6 ${isPredicting ? "" : "hidden"}`}>
+                            <video
+                                ref={predictionVideoRef}
+                                autoPlay
+                                playsInline
+                                muted
+                                className="rounded-lg border-2 border-gray-300"
+                            />
+                            <canvas
+                                ref={predictionCanvasRef}
+                                width="224"
+                                height="224"
+                                className="hidden"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }

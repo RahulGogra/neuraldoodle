@@ -1,27 +1,36 @@
 {
-  "name": "neuraldoodle",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.2.0"
-  },
-  "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.0",
-    "@eslint/eslintrc": "^3"
-  }
+    "name": "neuraldoodle",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev:frontend": "next dev",
+        "dev:backend": "node server/index.js",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@tensorflow-models/knn-classifier": "^1.2.6",
+        "@tensorflow-models/mobilenet": "^2.1.1",
+        "@tensorflow/tfjs": "^4.22.0",
+        "@tensorflow/tfjs-vis": "^1.5.1",
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "ml-regression": "^6.2.0",
+        "mongoose": "^8.12.1",
+        "next": "15.2.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "eslint": "^9",
+        "eslint-config-next": "15.2.0",
+        "tailwindcss": "^4",
+        "typescript": "^5"
+    }
 }
