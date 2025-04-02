@@ -87,16 +87,17 @@ export const Class = ({
     }, []);
 
     return (
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white border border-[#9ACBD0] rounded-lg shadow-lg p-5">
+            {/* Header with Editable Title and Dropdown */}
             <div className="relative flex justify-between items-center">
                 <input
                     type="text"
                     value={cls.name}
                     onChange={(e) => onEditClass(cls.name, e.target.value)}
-                    className="text-xl font-semibold bg-transparent border-b-2 focus:outline-none focus:border-blue-500 w-2/3"
+                    className="text-xl font-semibold text-[#006A71] bg-transparent border-b-2 border-[#9ACBD0] focus:outline-none focus:border-[#006A71] w-2/3 transition-all"
                 />
                 <button
-                    className="text-gray-500 hover:text-gray-700 p-1"
+                    className="text-[#006A71] hover:text-[#48A6A7] p-1 transition-all"
                     onClick={() =>
                         setOpenDropdownIndex(
                             openDropdownIndex === index ? null : index
@@ -106,11 +107,12 @@ export const Class = ({
                     ⋮
                 </button>
 
+                {/* Dropdown Menu */}
                 {openDropdownIndex === index && (
-                    <div className="absolute right-0 top-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
+                    <div className="absolute right-0 top-0 mt-2 w-40 bg-white border border-[#9ACBD0] rounded-lg shadow-lg">
                         <ul className="py-2">
                             <li
-                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                className="px-4 py-2 text-[#006A71] hover:bg-[#9ACBD0] cursor-pointer transition-all"
                                 onClick={() =>
                                     console.log("Edit class:", cls.name)
                                 }
@@ -118,7 +120,7 @@ export const Class = ({
                                 Edit
                             </li>
                             <li
-                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                className="px-4 py-2 text-[#D9534F] hover:bg-[#9ACBD0] cursor-pointer transition-all"
                                 onClick={() => onDeleteClass(cls.name)}
                             >
                                 Delete
@@ -128,22 +130,23 @@ export const Class = ({
                 )}
             </div>
 
-            <p className="mt-3 text-sm font-medium">
+            {/* Image Count */}
+            <p className="mt-3 text-sm font-medium text-[#006A71]">
                 Image Samples: {cls.count}
             </p>
 
-            {/* Camera Section */}
+            {/* Camera Start/Stop Button */}
             <div className="mt-4">
                 {!isCameraActive ? (
                     <button
-                        className="bg-green-500 px-4 py-2 rounded-lg text-white"
+                        className="bg-[#48A6A7] hover:bg-[#006A71] px-4 py-2 rounded-lg text-white transition-all"
                         onClick={startCamera}
                     >
                         Start Camera
                     </button>
                 ) : (
                     <button
-                        className="bg-red-500 px-4 py-2 rounded-lg text-white"
+                        className="bg-[#D9534F] hover:bg-[#B52B27] px-4 py-2 rounded-lg text-white transition-all"
                         onClick={stopCamera}
                     >
                         Stop Camera
@@ -158,7 +161,7 @@ export const Class = ({
                     autoPlay
                     playsInline
                     muted
-                    className="w-82 h-62 rounded-lg border-2 border-gray-300"
+                    className="w-82 h-62 rounded-lg border-2 border-[#9ACBD0]"
                 />
                 <canvas
                     ref={canvasRef}
@@ -171,7 +174,7 @@ export const Class = ({
             {/* Capture Image Button */}
             <div className="mt-4">
                 <button
-                    className="bg-blue-500 px-4 py-2 rounded-lg text-white"
+                    className="bg-[#006A71] hover:bg-[#48A6A7] px-4 py-2 rounded-lg text-white transition-all"
                     onClick={captureImage}
                     disabled={!isCameraActive}
                 >
@@ -186,10 +189,10 @@ export const Class = ({
                         <img
                             src={img}
                             alt="sample"
-                            className="w-16 h-16 rounded-md object-cover"
+                            className="w-16 h-16 rounded-md object-cover border border-[#9ACBD0]"
                         />
                         <button
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            className="absolute top-0 right-0 bg-[#D9534F] hover:bg-[#B52B27] text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                             onClick={() => onDeleteImage(cls.name, idx)}
                         >
                             ×

@@ -13,12 +13,12 @@ export const AddClass = ({ onAddClass }: AddClassProps) => {
             <input
                 type="text"
                 placeholder="Enter class name"
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border rounded-lg border-[#9ACBD0]"
                 value={newClassName}
                 onChange={(e) => setNewClassName(e.target.value)}
             />
             <button
-                className="w-2xs bg-blue-500 px-6 py-2 rounded-lg text-white"
+                className="w-2xs bg-[#006A71] hover:bg-[#48A6A7] px-6 py-2 rounded-lg text-white"
                 onClick={() => {
                     if (newClassName) {
                         onAddClass(newClassName);
