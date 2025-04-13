@@ -47,7 +47,7 @@ export default function ScrollProgressCircle({
 
     return (
         <motion.div
-            className="fixed bottom-6 left-6 flex items-center justify-center drop-shadow-xl"
+            className="fixed bottom-6 left-6 flex items-center justify-center drop-shadow-xl z-100"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}

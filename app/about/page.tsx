@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import Navbar from "@/components/navbar";
+import Navbar from "@/utils/navbar";
 
 export default function About() {
     return (

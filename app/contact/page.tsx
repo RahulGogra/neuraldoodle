@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Navbar from "@/components/navbar";
+import Navbar from "@/utils/navbar";
 import toast from "react-hot-toast";
 
 export default function Contact() {

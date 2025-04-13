@@ -7,6 +7,7 @@ import { Class } from "../components/class";
 import { AddClass } from "../components/addClass";
 import { Training } from "@/components/training";
 import { Predictions } from "@/components/prediction";
+import toast from "react-hot-toast";
 
 export default function TeachableMachine() {
     const [classes, setClasses] = useState<
@@ -32,6 +33,21 @@ export default function TeachableMachine() {
 
     /** 🔄 Load & Train Model */
     const trainModel = async () => {
+        // Validate classes before training
+        if (classes.length < 2) {
+            toast.error("❌ At least two classes are required for training!", {
+                duration: 3000,
+            });
+            return;
+        }
+
+        if (classes.some((cls) => cls.images.length === 0)) {
+            toast.error("❌ Each class must have at least one image!", {
+                duration: 3000,
+            });
+            return;
+        }
+
         setIsTraining(true);
         console.log("🔄 Loading MobileNet model...");
         try {
@@ -39,8 +55,14 @@ export default function TeachableMachine() {
             setMobilenetModel(model);
             console.log("✅ MobileNet model loaded!");
             await trainClassifier(model);
+            setTimeout(() => {
+                toast.success("✅ Model trained successfully!", {
+                    duration: 3000,
+                });
+            }, 2000);
         } catch (error) {
             console.error("❌ Failed to load MobileNet model:", error);
+            toast.error("❌ Failed to load the model!", { duration: 3000 });
         }
         setIsTraining(false);
     };
@@ -85,35 +107,30 @@ export default function TeachableMachine() {
     /** 🎥 Start Prediction */
     const startPrediction = async () => {
         if (!mobilenetModel) {
-            console.error("❌ Model not loaded. Train it first.");
+            toast.error("❌ Model not trained yet! Train it first.", {
+                duration: 3000,
+            });
             return;
         }
-
-        // 🔥 Wait for the video element to be available
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        if (!predictionVideoRef.current) {
-            console.error(
-                "❌ No video element found! Check if it's in the JSX."
-            );
-            return;
-        }
+        setIsPredicting(true);
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
             });
-            predictionVideoRef.current.srcObject = stream;
-            await predictionVideoRef.current.play();
-            console.log("🎥 Video stream started");
-
-            setIsPredicting(true);
-            predictionIntervalRef.current = setInterval(
-                () => predictClass(),
-                1000
-            );
+            if (predictionVideoRef.current) {
+                predictionVideoRef.current.srcObject = stream;
+                await predictionVideoRef.current.play();
+                console.log("🎥 Video stream started");
+                predictionIntervalRef.current = setInterval(
+                    () => predictClass(),
+                    1000
+                );
+            }
         } catch (error) {
             console.error("❌ Failed to start prediction camera:", error);
+            toast.error("❌ Failed to start camera!", { duration: 3000 });
+            setIsPredicting(false);
         }
     };
 
@@ -171,6 +188,35 @@ export default function TeachableMachine() {
         tf.dispose(activation);
     };
 
+    /** 🏗️ Export & Download KNN Model */
+    const exportModel = () => {
+        if (!classifier.current) {
+            toast.error("❌ No trained model to export!", { duration: 3000 });
+            return;
+        }
+
+        const dataset = classifier.current.getClassifierDataset();
+        const datasetJSON = JSON.stringify(
+            Object.fromEntries(
+                Object.entries(dataset).map(([label, tensor]) => [
+                    label,
+                    Array.from(tensor.dataSync()),
+                ])
+            )
+        );
+
+        const blob = new Blob([datasetJSON], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "knn-classifier.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success("✅ Model exported successfully!", { duration: 3000 });
+        console.log("✅ Model exported and downloaded!");
+    };
+
     /** Cleanup */
     useEffect(() => {
         return () => {
@@ -180,11 +226,11 @@ export default function TeachableMachine() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col items-center p-6 pt-15 bg-[#F2EFE7]">
+        <div className="min-h-screen flex flex-col p-6 pt-15 bg-[#F2EFE7] pl-25">
             <div className="flex space-x-4">
-                <div>
+                <div className="h-150 overflow-y-auto border-2 p-2 border-[#9ACBD0] rounded-lg mr-6">
                     {/* Class Management */}
-                    <div className="w-2xl space-y-4 mt-6">
+                    <div className="w-1xl space-y-4 mt-6">
                         {classes.map((cls, index) => (
                             <Class
                                 key={index}
@@ -241,38 +287,56 @@ export default function TeachableMachine() {
 
                 {/* Training & Prediction Section */}
                 <div className="flex items-center space-x-5 mt-6">
-                    <Training
-                        isTraining={isTraining}
-                        onTrainModel={trainModel}
-                        isPredicting={isPredicting}
-                        onStartPrediction={startPrediction}
-                        onStopPrediction={stopPrediction}
-                    />
-                    <div className="bg-white p-4 shadow-lg rounded-lg w-64 text-center border-2 border-[#9ACBD0]">
-                        <Predictions predictions={predictions} />
-                        {/* Ensure video element is rendered */}
-
-                        {/* Always render the video element */}
-                        <div className="mt-6">
-                            <video
-                                ref={predictionVideoRef}
-                                autoPlay
-                                playsInline
-                                muted
-                                className={`rounded-lg border-2 border-[#48A6A7] ${
-                                    isPredicting ? "block" : "hidden"
-                                }`}
-                                width="224"
-                                height="224"
-                            />
-                            <canvas
-                                ref={predictionCanvasRef}
-                                width="224"
-                                height="224"
-                                className="hidden"
-                            />
-                        </div>
+                    <div className="flex flex-col">
+                        <Training
+                            isTraining={isTraining}
+                            onTrainModel={trainModel}
+                            isPredicting={isPredicting}
+                            onStartPrediction={startPrediction}
+                            onStopPrediction={stopPrediction}
+                            isDisabled={
+                                isTraining ||
+                                classes.length < 2 ||
+                                classes.some((cls) => cls.images.length === 0)
+                            }
+                        />
+                        <button
+                            onClick={exportModel}
+                            className={`mt-4 px-4 py-2 rounded-lg transition ${
+                                isTraining || !mobilenetModel
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-[#48A6A7] text-white hover:bg-[#006A71]"
+                            }`}
+                            disabled={isTraining || !mobilenetModel}
+                        >
+                            📥 Export & Download Model
+                        </button>
                     </div>
+
+                    {isPredicting && (
+                        <div className="bg-white p-4 shadow-lg rounded-lg w-64 text-center border-2 border-[#9ACBD0]">
+                            <Predictions predictions={predictions} />
+                            <div className="mt-6">
+                                <video
+                                    ref={predictionVideoRef}
+                                    autoPlay
+                                    playsInline
+                                    muted
+                                    className={`rounded-lg border-2 border-[#48A6A7] ${
+                                        isPredicting ? "block" : "hidden"
+                                    }`}
+                                    width="224"
+                                    height="224"
+                                />
+                                <canvas
+                                    ref={predictionCanvasRef}
+                                    width="224"
+                                    height="224"
+                                    className="hidden"
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Navbar from "@/components/navbar";
+import Navbar from "@/utils/navbar";
 
 const faqs = [
     {

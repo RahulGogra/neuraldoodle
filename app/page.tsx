@@ -1,9 +1,13 @@
 "use client";
-import Navbar from "@/components/navbar";
+import Navbar from "@/utils/navbar";
 import type { NextPage } from "next";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FaFacebook, FaTwitter, FaLinkedin, FaGithub } from "react-icons/fa";
+import AnimatedWaveSVG from "@/components/animatedSvg";
+import Link from "next/link";
+import { MenuButton } from "@/components/hamburger";
+import { useState } from "react";
 
 const Home: NextPage = () => {
     const text =
@@ -87,48 +91,56 @@ const Home: NextPage = () => {
         <>
             <Navbar />
             {/* Hero Section */}
-            <section className="flex flex-col items-center justify-center min-h-screen bg-[#F2EFE7] text-gray-900 text-center p-8">
-                <h1 className="text-9xl font-bold text-[#006A71]">
-                    Teachable Machine
-                </h1>
-                <p className="mt-4 text-4xl max-w-xl text-[#48A6A7] flex flex-wrap justify-center">
-                    {text.split("").map((char, index) => (
-                        <motion.span
-                            key={index}
-                            whileHover={{
-                                y: -10,
-                                rotate: Math.random() * 10 - 5,
-                            }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 200,
-                                damping: 10,
-                            }}
-                            className="inline-block cursor-pointer"
-                        >
-                            {char === " " ? "\u00A0" : char}
-                        </motion.span>
-                    ))}
-                </p>
-                <div className="mt-6 flex gap-4">
-                    <motion.button
-                        whileHover={{
-                            scale: 1.1,
-                        }}
-                        whileTap={{ scale: 0.9 }}
-                        className="px-6 py-3 bg-[#48A6A7] text-white font-semibold rounded-lg shadow-lg hover:bg-[#006A71] transition cursor-pointer"
-                    >
-                        Start Training
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="px-6 py-3 bg-[#9ACBD0] text-gray-900 font-semibold rounded-lg shadow-lg hover:bg-[#48A6A7] transition cursor-pointer"
-                    >
-                        Make Predictions
-                    </motion.button>
+            <div className="relative min-h-screen overflow-hidden">
+                {/* Position the SVG as absolute to act as background */}
+                <div className="absolute inset-0 z-0">
+                    <AnimatedWaveSVG />
                 </div>
-            </section>
+
+                {/* Content section above the waves */}
+                <section className="relative z-10 flex flex-col items-center justify-center min-h-screen bg-transparent text-gray-900 text-center ">
+                    <h1 className="text-6xl md:text-8xl font-bold text-[#006A71]">
+                        Teachable Machine
+                    </h1>
+                    <p className="mt-4 text-2xl md:text-4xl max-w-xl text-[#006a71] flex flex-wrap justify-center">
+                        {text.split("").map((char, index) => (
+                            <motion.span
+                                key={index}
+                                whileHover={{
+                                    y: -10,
+                                    rotate: Math.random() * 10 - 5,
+                                }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 200,
+                                    damping: 10,
+                                }}
+                                className="inline-block cursor-pointer"
+                            >
+                                {char === " " ? "\u00A0" : char}
+                            </motion.span>
+                        ))}
+                    </p>
+                    <div className="mt-6 flex gap-4">
+                        <motion.div
+                            whileHover={{
+                                scale: 1.1,
+                            }}
+                            whileTap={{ scale: 0.9 }}
+                            className="px-6 py-3 bg-[#48A6A7] text-white font-semibold rounded-lg shadow-lg hover:bg-[#006A71] transition cursor-pointer"
+                        >
+                            <Link href="/train">Start Training</Link>
+                        </motion.div>
+                        <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="px-6 py-3 bg-[#9ACBD0] text-gray-900 font-semibold rounded-lg shadow-lg hover:bg-[#48A6A7] transition cursor-pointer"
+                        >
+                            <Link href="/importModel">Make Predictions</Link>
+                        </motion.div>
+                    </div>
+                </section>
+            </div>
 
             {/* How It Works Section */}
             <section className="py-20 bg-[#9ACBD0] text-center">

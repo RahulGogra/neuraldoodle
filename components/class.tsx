@@ -72,6 +72,20 @@ export const Class = ({
         onAddImage(cls.name, imageBase64);
     };
 
+    // Handle image upload
+    const onUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (reader.result) {
+                onAddImage(cls.name, reader.result.toString());
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     // Cleanup camera on component unmount
     useEffect(() => {
         const videoElement = videoRef.current;
@@ -135,8 +149,8 @@ export const Class = ({
                 Image Samples: {cls.count}
             </p>
 
-            {/* Camera Start/Stop Button */}
-            <div className="mt-4">
+            {/* Camera and Upload Buttons */}
+            <div className="mt-4 flex gap-3">
                 {!isCameraActive ? (
                     <button
                         className="bg-[#48A6A7] hover:bg-[#006A71] px-4 py-2 rounded-lg text-white transition-all"
@@ -152,6 +166,15 @@ export const Class = ({
                         Stop Camera
                     </button>
                 )}
+                <label className="bg-[#48A6A7] hover:bg-[#006A71] px-4 py-2 rounded-lg text-white transition-all cursor-pointer">
+                    Upload Image
+                    <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={onUploadImage}
+                    />
+                </label>
             </div>
 
             {/* Video Feed */}

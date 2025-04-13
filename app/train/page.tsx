@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Navbar from "@/components/navbar";
 import { motion } from "framer-motion";
+import Navbar from "@/utils/navbar";
 
 // 🔄 Animated Loading Spinner Component
 const LoadingSpinner = () => (
