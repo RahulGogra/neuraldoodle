@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import ScrollProgressCircle from "./scrollProgress";
-import { MenuButton } from "@/components/hamburger";
+import MenuButton from "@/components/menuButton";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
