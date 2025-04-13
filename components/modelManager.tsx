@@ -147,11 +147,6 @@ export default function ImportModel() {
         }
     };
 
-    // Trigger file input click
-    const onButtonClick = () => {
-        fileInputRef.current?.click();
-    };
-
     /** 📂 Process uploaded file */
     const processFile = async (file: File) => {
         if (!file) return;

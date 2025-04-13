@@ -6,8 +6,6 @@ import Image from "next/image";
 import { FaFacebook, FaTwitter, FaLinkedin, FaGithub } from "react-icons/fa";
 import AnimatedWaveSVG from "@/components/animatedSvg";
 import Link from "next/link";
-import { MenuButton } from "@/components/hamburger";
-import { useState } from "react";
 
 const Home: NextPage = () => {
     const text =

@@ -7,7 +7,7 @@ interface Props extends SVGMotionProps {
     color?: string;
     strokeWidth?: string | number;
     transition?: Transition;
-    lineProps?: any;
+    lineProps?: SVGMotionProps<SVGLineElement>;
 }
 
 const MenuButton = ({
