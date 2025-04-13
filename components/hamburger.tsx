@@ -1,13 +1,17 @@
 import React from "react";
 import { motion, Transition, SVGMotionProps } from "framer-motion";
 
-interface Props extends SVGMotionProps {
+// Fix: Properly extend SVGMotionProps with the correct generic type parameter
+interface Props extends SVGMotionProps<SVGSVGElement> {
     className?: string;
     isOpen?: boolean;
     color?: string;
     strokeWidth?: string | number;
     transition?: Transition;
-    lineProps?: SVGMotionProps<SVGLineElement>;
+    lineProps?: any;
+    // Add missing width and height props that are used in destructuring
+    width?: number | string;
+    height?: number | string;
 }
 
 const MenuButton = ({
@@ -59,7 +63,7 @@ const MenuButton = ({
         ...lineProps,
     };
     const unitHeight = 4;
-    const unitWidth = (unitHeight * (width as number)) / (height as number);
+    const unitWidth = (unitHeight * Number(width)) / Number(height);
 
     return (
         <motion.svg
