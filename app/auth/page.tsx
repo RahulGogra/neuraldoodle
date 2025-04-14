@@ -51,10 +51,11 @@ export default function AuthPage() {
         e.preventDefault();
         setIsLoading(true);
         setError("");
+        const apiUrl = process.env.NEXT_PUBLIC_URL;
 
         try {
             if (isSignUp) {
-                const res = await fetch("http://localhost:5000/api/signup", {
+                const res = await fetch(`${apiUrl}/signup`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export default function AuthPage() {
                     toast.error(data.error || "Sign up failed");
                 }
             } else {
-                const res = await fetch("http://localhost:5000/api/login", {
+                const res = await fetch(`${apiUrl}/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
