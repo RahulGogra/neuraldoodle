@@ -7,6 +7,36 @@ import Navbar from "@/utils/navbar";
 import { FaEye, FaEyeSlash, FaGithub, FaGoogle } from "react-icons/fa";
 import toast from "react-hot-toast";
 
+// Add proper TypeScript interfaces
+interface SearchParamsHandlerProps {
+  setError: React.Dispatch<React.SetStateAction<string>>;
+}
+
+// Create a separate component for handling search params
+function SearchParamsHandler({ setError }: SearchParamsHandlerProps) {
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    const callbackError = searchParams?.get("error");
+    const callbackUrl = searchParams?.get("callbackUrl");
+
+    if (callbackError) {
+      setError(
+        callbackError === "OAuthAccountNotLinked"
+          ? "Email already in use with different provider"
+          : "Authentication error"
+      );
+    }
+
+    // Auto-redirect if there's a callbackUrl
+    if (callbackUrl) {
+      localStorage.setItem("redirectUrl", callbackUrl);
+    }
+  }, [searchParams, setError]);
+
+  return null; // This component doesn't render anything
+}
+
 export default function AuthPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState("");
@@ -17,26 +47,6 @@ export default function AuthPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
-    const searchParams = useSearchParams();
-
-    // Check for callback errors or redirects
-    useEffect(() => {
-        const callbackError = searchParams?.get("error");
-        const callbackUrl = searchParams?.get("callbackUrl");
-
-        if (callbackError) {
-            setError(
-                callbackError === "OAuthAccountNotLinked"
-                    ? "Email already in use with different provider"
-                    : "Authentication error"
-            );
-        }
-
-        // Auto-redirect if there's a callbackUrl
-        if (callbackUrl) {
-            localStorage.setItem("redirectUrl", callbackUrl);
-        }
-    }, [searchParams]);
 
     const toggleMode = () => {
         setIsSignUp(!isSignUp);
@@ -121,8 +131,13 @@ export default function AuthPage() {
     };
 
     return (
-        <> <Suspense fallback={<div>Loading...</div>}>
+        <>
             <Navbar />
+            {/* Wrap the search params handler in Suspense */}
+            <Suspense fallback={null}>
+                <SearchParamsHandler setError={setError} />
+            </Suspense>
+            
             <div className="min-h-screen flex items-center justify-center bg-[#F2EFE7] px-4">
                 <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-lg">
                     <h2 className="text-2xl font-bold text-center text-[#006A71]">
@@ -296,7 +311,7 @@ export default function AuthPage() {
                         </button>
                     </p>
                 </div>
-            </div></Suspense>
+            </div>
         </>
     );
 }
