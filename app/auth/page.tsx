@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Navbar from "@/utils/navbar";
@@ -121,7 +121,7 @@ export default function AuthPage() {
     };
 
     return (
-        <>
+        <> <Suspense fallback={<div>Loading...</div>}>
             <Navbar />
             <div className="min-h-screen flex items-center justify-center bg-[#F2EFE7] px-4">
                 <div className="w-full max-w-md p-8 bg-white shadow-xl rounded-lg">
@@ -296,7 +296,7 @@ export default function AuthPage() {
                         </button>
                     </p>
                 </div>
-            </div>
+            </div></Suspense>
         </>
     );
 }
