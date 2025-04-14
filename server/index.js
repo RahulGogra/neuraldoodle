@@ -14,12 +14,24 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(
+
+const allowedOrigins = [
+    "http://localhost:3000",             // Local frontend
+    "https://neuraldoodle.vercel.app", // Deployed frontend
+  ];
+  
+  app.use(
     cors({
-        origin: "http://localhost:3000", // frontend URL
-        credentials: true, // allow cookies or auth headers
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
     })
-);
+  );
 app.use(express.json()); // for parsing JSON requests
 app.use(cookieParser());
 
