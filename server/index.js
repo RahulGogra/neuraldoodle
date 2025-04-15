@@ -10,15 +10,13 @@ import serverless from "serverless-http";
 
 // Load env variables
 dotenv.config();
-
-// Connect to DB
 connectDB();
 
 const app = express();
 
 const allowedOrigins = [
-    "http://localhost:3000",
-    "https://neuraldoodle.vercel.app",
+  "http://localhost:3000",
+  "https://neuraldoodle.vercel.app",
 ];
 
 app.use(
@@ -37,20 +35,22 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", userRoutes);
+// API routes
 app.use("/api/signup", signupRoute);
 app.use("/api/login", loginRoute);
+app.use("/api", userRoutes);
 
+// Root route
 app.get("/", (req, res) => {
   res.send("Auth API is running");
 });
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Only run `listen()` locally or when NOT on Vercel
+// ✅ LOCAL: Only listen if NOT running on Vercel
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-// ✅ Export for serverless deployment
-export default serverless(app);
+// ✅ VERCEL: Export handler for serverless use
+export const handler = serverless(app);
