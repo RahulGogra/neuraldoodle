@@ -53,4 +53,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ✅ Export for serverless deployment
-export const handler = serverless(app);
+export default serverless(app);
