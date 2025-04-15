@@ -15,34 +15,54 @@ connectDB();
 
 const app = express();
 
+// Define allowed origins
 const allowedOrigins = [
-    "http://localhost:3000",             // Local frontend
-    "https://neuraldoodle.vercel.app", // Deployed frontend
-  ];
-  
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-    })
-  );
-app.use(express.json()); // for parsing JSON requests
+  "http://localhost:3000",
+  "https://neuraldoodle.vercel.app",
+];
+
+// CORS middleware - place this BEFORE your routes
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("Request origin:", origin);
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  })
+);
+
+// Parsing middleware
+app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", userRoutes); // Protected routes
-// Routes
+// Routes - defined after CORS middleware
 app.use("/api/signup", signupRoute);
 app.use("/api/login", loginRoute);
+app.use("/api", userRoutes); // Protected routes
 
 // Default route
 app.get("/", (req, res) => {
-    res.send("Auth API is running");
+  res.send("Auth API is running");
+});
+
+// CORS error handler
+app.use((err, req, res, next) => {
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({
+      message: "CORS not allowed for this origin"
+    });
+  }
+  next(err);
 });
 
 const PORT = process.env.PORT || 5000;
