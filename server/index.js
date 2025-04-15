@@ -6,7 +6,6 @@ import loginRoute from "./routes/login.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.js";
-import serverless from "serverless-http";
 
 // Load env variables
 dotenv.config();
@@ -17,40 +16,34 @@ connectDB();
 const app = express();
 
 const allowedOrigins = [
-    "http://localhost:3000",
-    "https://neuraldoodle.vercel.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-app.use(express.json());
+    "http://localhost:3000",             // Local frontend
+    "https://neuraldoodle.vercel.app", // Deployed frontend
+  ];
+  
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
+app.use(express.json()); // for parsing JSON requests
 app.use(cookieParser());
 
-app.use("/api", userRoutes);
+app.use("/api", userRoutes); // Protected routes
+// Routes
 app.use("/api/signup", signupRoute);
 app.use("/api/login", loginRoute);
 
+// Default route
 app.get("/", (req, res) => {
-  res.send("Auth API is running");
+    res.send("Auth API is running");
 });
 
 const PORT = process.env.PORT || 5000;
-
-// ✅ Only run `listen()` locally or when NOT on Vercel
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
-
-// ✅ Export for serverless deployment
-export default serverless(app);
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
