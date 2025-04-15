@@ -33,6 +33,7 @@
         "react-dom": "^19.0.0",
         "react-hot-toast": "^2.5.2",
         "react-icons": "^5.5.0",
+        "serverless-http": "^3.2.0",
         "three": "^0.175.0",
         "troika-three-text": "^0.52.3"
     },
