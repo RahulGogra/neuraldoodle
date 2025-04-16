@@ -54,7 +54,7 @@ export default function UploadPage() {
             } else {
                 toast.error(data.error || "Upload failed.");
             }
-        } catch (error) {
+        } catch {
             toast.error("Server error.");
         }
     };
