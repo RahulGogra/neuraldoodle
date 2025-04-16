@@ -6,6 +6,7 @@ import loginRoute from "./routes/login.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.js";
+import modelRoutes from "./routes/model.js"; // <-- NEW
 
 // Load env variables
 dotenv.config();
@@ -42,13 +43,15 @@ app.use(
 );
 
 // Parsing middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // or '50mb' if needed
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Routes - defined after CORS middleware
 app.use("/api/signup", signupRoute);
 app.use("/api/login", loginRoute);
 app.use("/api", userRoutes); // Protected routes
+app.use("/api/model", modelRoutes); // <-- New line
 
 // Default route
 app.get("/", (req, res) => {
