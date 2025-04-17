@@ -136,6 +136,13 @@ const Home: NextPage = () => {
                         >
                             <Link href="/importModel">Make Predictions</Link>
                         </motion.div>
+                        <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="px-6 py-3 bg-[#48A6A7] text-gray-900 font-semibold rounded-lg shadow-lg hover:bg-[#48A6A7] transition cursor-pointer"
+                        >
+                            <Link href="/models">Uploaded Models</Link>
+                        </motion.div>
                     </div>
                 </section>
             </div>

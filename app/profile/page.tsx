@@ -55,7 +55,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col md:flex-row items-center gap-6">
                             <div className="relative w-32 h-32">
                                 <Image
-                                    src="/Profile.jpg"
+                                    src="/profile.jpg"
                                     alt="Profile Picture"
                                     fill
                                     className={
@@ -88,15 +88,6 @@ export default function ProfilePage() {
                                 {user.updatedAt}
                             </p>
                         </div>
-
-                        <div className="mt-4 flex justify-end">
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                className="bg-gradient-to-r from-[#48A6A7] to-[#006A71] hover:opacity-90 text-white px-5 py-2 rounded-md font-medium transition"
-                            >
-                                Edit Profile
-                            </motion.button>
-                        </div>
                         <div className="mt-4 flex justify-end">
                             <motion.button
                                 onClick={() => router.push("/upload-modal")}
@@ -107,6 +98,15 @@ export default function ProfilePage() {
                             </motion.button>
                         </div>
 
+
+                        <div className="mt-4 flex justify-end">
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-gradient-to-r from-[#48A6A7] to-[#006A71] hover:opacity-90 text-white px-5 py-2 rounded-md font-medium transition"
+                            >
+                                Edit Profile
+                            </motion.button>
+                        </div>
                         <div className="mt-4 flex justify-end">
                             <motion.button
                                 onClick={handleLogout}

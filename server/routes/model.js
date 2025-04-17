@@ -27,5 +27,16 @@ router.post('/upload', async (req, res) => {
   }
 });
 
+router.get("/all", async (req, res) => {
+  try {
+    const models = await ModelObject.find({ isPublic: true });
+
+    res.status(200).json(models);
+  } catch (err) {
+    console.error("Error fetching models:", err);
+    res.status(500).json({ error: "Failed to fetch models" });
+  }
+});
+
 
 export default router;
