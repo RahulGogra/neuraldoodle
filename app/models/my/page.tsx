@@ -46,23 +46,31 @@ export default function ModelsPage() {
         const fetchModels = async () => {
             try {
                 const apiUrl = process.env.NEXT_PUBLIC_URL;
-                const res = await fetch(`${apiUrl}/model/all`, {
+        
+                const res = await fetch(`${apiUrl}/model/my`, {
+                    method: "GET",
                     headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                    credentials: "include", // include cookies in request
                 });
+        
                 const data = await res.json();
+        
                 if (res.ok) {
                     setModels(data);
                 } else {
                     toast.error(data.error || "Failed to fetch models");
                 }
-            } catch {
+            } catch (err) {
                 toast.error("Server error");
+                console.error("Fetch error:", err);
             } finally {
                 setLoading(false);
             }
         };
+        
 
         fetchModels();
     }, [router]);
@@ -85,7 +93,7 @@ export default function ModelsPage() {
                     transition={{ duration: 0.5 }}
                 >
                     <h1 className="text-3xl font-bold text-[#006A71] mb-6 text-center">
-                        All Public Models
+                        Your All Uploaded Models
                     </h1>
                     {models.length === 0 ? (
                         <p className="text-center text-gray-600">

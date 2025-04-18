@@ -98,6 +98,16 @@ export default function ProfilePage() {
                             </motion.button>
                         </div>
 
+                        <div className="mt-4 flex justify-end">
+                            <motion.button
+                                onClick={() => router.push("/models/my")}
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-gradient-to-r from-[#48A6A7] to-[#006A71] hover:opacity-90 text-white px-5 py-2 rounded-md font-medium transition"
+                            >
+                                Your Model
+                            </motion.button>
+                        </div>
+
 
                         <div className="mt-4 flex justify-end">
                             <motion.button

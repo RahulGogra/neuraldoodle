@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 import ModelObject from "../models/Model.js";
+import verifyToken from "../middleware/auth.js";
 
 // POST /api/model/upload
 router.post('/upload', async (req, res) => {
@@ -32,6 +33,19 @@ router.get("/all", async (req, res) => {
     const models = await ModelObject.find({ isPublic: true });
 
     res.status(200).json(models);
+  } catch (err) {
+    console.error("Error fetching models:", err);
+    res.status(500).json({ error: "Failed to fetch models" });
+  }
+});
+
+router.get("/my", verifyToken, async (req, res) => {
+  try {
+    console.log(req.user.id);
+    const models = await ModelObject.find({ createdBy: req.user.id });
+
+    res.status(200).json(models);
+
   } catch (err) {
     console.error("Error fetching models:", err);
     res.status(500).json({ error: "Failed to fetch models" });
